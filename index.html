@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Index | Home</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+
+<body class="no-scroll">
+    <section class="hero-slider">
+        <div class="hero-content-overlay">
+            <div class="hero-logo">
+                <img src="images/uploaded_image_1767715009032.png" alt="Logo">
+            </div>
+            <h1 class="hero-title-wrapper">
+                <span class="static-text">Confecção e estamparia</span>
+                <div class="typewriter-line">
+                    <span class="static-prefix">para&nbsp;</span>
+                    <div class="typewriter-cont">
+                        <span class="typewriter-dynamic-wrapper">
+                            <span id="typewriter-text" class="typewriter-text"></span>
+                            <span class="typewriter-cursor"></span>
+                        </span>
+                    </div>
+                </div>
+            </h1>
+
+            <div class="hero-buttons-wrapper">
+                <a href="marcas.html" class="modern-btn">Marca</a>
+                <a href="corporativo.html" class="modern-btn">Empresa</a>
+            </div>
+        </div>
+
+        <div class="slide active">
+            <img src="images/uploaded_image_2_1767635435080.jpg" class="slide-bg" alt="Slide 1">
+        </div>
+        <div class="slide">
+            <img src="images/uploaded_image_1_1767635435080.jpg" class="slide-bg" alt="Slide 2">
+        </div>
+        <div class="slide">
+            <img src="images/uploaded_image_0_1767635435080.jpg" class="slide-bg" alt="Slide 3">
+        </div>
+        <div class="slide">
+            <img src="images/uploaded_image_3_1767635435080.jpg" class="slide-bg" alt="Slide 4">
+        </div>
+    </section>
+
+    <a href="#" onclick="openLeadModal('Contato Geral'); return false;" class="whatsapp-float">
+        <svg fill="currentColor" width="24" height="24" viewBox="0 0 24 24">
+            <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+        </svg>
+    </a>
+
+    <div id="lead-modal-overlay" class="lead-modal-overlay">
+        <div class="lead-modal">
+            <button class="lead-modal-close" onclick="closeLeadModal()">&times;</button>
+            <h3>Fale Conosco</h3>
+            <p>Informe seu WhatsApp para iniciarmos seu atendimento personalizado.</p>
+            <div class="lead-input-group">
+                <input type="tel" id="user-phone" class="lead-input" placeholder="(00) 00000-0000" maxlength="15">
+            </div>
+            <button class="lead-submit-btn" onclick="submitLead()">Iniciar Conversa</button>
+        </div>
+    </div>
+
+    <script>
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 1. Efeito de Escrita (Typewriter) - CORRIGIDO
+        document.addEventListener('DOMContentLoaded', () => {
+            const textElement = document.getElementById('typewriter-text');
+            const words = ["sua marca", "sua empresa", "seu evento"];
+            let wordIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+
+            function type() {
+                const currentWord = words[wordIndex];
+
+                // Cálculo preciso para não cortar a última letra
+                if (isDeleting) {
+                    textElement.textContent = currentWord.substring(0, charIndex);
+                    charIndex--;
+                } else {
+                    textElement.textContent = currentWord.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+
+                let typeSpeed = isDeleting ? 50 : 150;
+
+                // Verificação de fim de palavra ou fim de exclusão
+                if (!isDeleting && charIndex === currentWord.length) {
+                    isDeleting = true;
+                    typeSpeed = 2000; // Pausa ao completar a palavra
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    wordIndex = (wordIndex + 1) % words.length;
+                    typeSpeed = 500; // Pausa antes de começar nova palavra
+                }
+
+                setTimeout(type, typeSpeed);
+            }
+
+            type();
+            startHeroSlider();
+        });
+
+        // 2. Lógica do Slider de Background
+        function startHeroSlider() {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            if (slides.length === 0) return;
+
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 5000);
+        }
+
+        // 3. Funções do Modal de Lead
+        function openLeadModal(title) {
+            window.currentLeadProduct = title;
+            document.getElementById('lead-modal-overlay').classList.add('active');
+            setTimeout(() => document.getElementById('user-phone').focus(), 200);
+        }
+
+        function closeLeadModal() {
+            document.getElementById('lead-modal-overlay').classList.remove('active');
+        }
+
+        async function submitLead() {
+            const phone = document.getElementById('user-phone').value;
+            if (phone.length < 14) {
+                alert('Por favor, informe um WhatsApp válido com DDD.');
+                return;
+            }
+
+            try {
+                // Tenta salvar o lead no Supabase
+                await _supabase.from('leads').insert([
+                    {
+                        telefone: phone,
+                        nome_produto: window.currentLeadProduct || 'Home'
+                    }
+                ]);
+
+                // Monta mensagem para o WhatsApp
+                const msg = `Olá! Gostaria de falar sobre: ${window.currentLeadProduct || 'Geral'}`;
+                const zapUrl = `https://wa.me/5528999763505?text=${encodeURIComponent(msg)}`;
+
+                window.open(zapUrl, '_blank');
+                closeLeadModal();
+            } catch (e) {
+                // Fallback caso falhe a gravação no banco
+                window.open(`https://wa.me/5528999763505`, '_blank');
+            }
+        }
+
+        // 4. Atalho Secreto para Administração (Shift + L)
+        document.addEventListener('keydown', (e) => {
+            if (e.shiftKey && (e.key === 'L' || e.key === 'l')) {
+                window.location.href = 'admin.html';
+            }
+        });
+
+        // 5. Máscara de Telefone em Tempo Real
+        document.getElementById('user-phone').addEventListener('input', (e) => {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+
+        // Permitir envio ao apertar Enter
+        document.getElementById('user-phone').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitLead();
+        });
+    </script>
+</body>
+
+</html>

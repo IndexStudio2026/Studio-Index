@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Produto | Studio Index</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <style>
+        /* Espaço para o header fixo não cortar o conteúdo */
+        body {
+            padding-top: 110px;
+        }
+
+        /* Estilo da Tag agora posicionada abaixo */
+        .detail-tag-bottom {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 6px 14px;
+            background: #000;
+            color: #fff;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            border-radius: 2px;
+        }
+
+        .gallery-grid img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: 0.2s;
+        }
+
+        .gallery-grid img:hover {
+            border-color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <a href="index.html">
+                <img src="images/uploaded_image_1767635167797.png" alt="Studio Index Logo">
+            </a>
+        </div>
+        <nav class="header-nav">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="marcas.html" class="nav-link">Marca</a>
+            <a href="corporativo.html" class="nav-link">Empresa</a>
+        </nav>
+        <a href="#" onclick="openLeadModal('Contato Geral'); return false;" class="header-cta">Contato</a>
+    </header>
+
+    <div id="loading-screen"
+        style="height: 60vh; display: flex; align-items: center; justify-content: center; color: #666;">
+        <p>Carregando informações...</p>
+    </div>
+
+    <main class="product-detail-container" id="main-content" style="display: none;">
+        <div class="product-gallery">
+            <div class="gallery-main">
+                <img id="main-view" src="" alt="Produto">
+            </div>
+            <div class="gallery-grid" id="thumb-grid"></div>
+        </div>
+
+        <div class="product-info-panel">
+            <nav class="breadcrumbs-detail">
+                Catalog / <span id="bread-category">Categoria</span> / <span id="bread-name">Produto</span>
+            </nav>
+
+            <h1 id="prod-nome">Nome do Produto</h1>
+            <h2 id="prod-subtitulo" class="subtitle">Subtítulo</h2>
+
+            <div class="description-block">
+                <h3>Resumo</h3>
+                <p id="prod-desc" style="white-space: pre-wrap;"></p>
+            </div>
+
+            <div class="specs-block" id="block-tech">
+                <h3>Ficha Técnica</h3>
+                <p id="prod-tech" style="white-space: pre-wrap; color: #555; margin-bottom: 5px;"></p>
+
+                <div id="prod-tag-container" style="display: none;">
+                    <span class="detail-tag-bottom" id="prod-tag"></span>
+                </div>
+            </div>
+
+            <div class="action-box">
+                <div class="price-estimate">
+                    <span class="label">Disponibilidade</span>
+                    <span class="value">Sob Consulta</span>
+                </div>
+                <button class="cta-primary-large" id="btn-orcamento">Solicitar Orçamento</button>
+            </div>
+        </div>
+    </main>
+
+    <div id="lead-modal-overlay" class="lead-modal-overlay">
+        <div class="lead-modal">
+            <button class="lead-modal-close" onclick="closeLeadModal()">&times;</button>
+            <h3>Fale Conosco</h3>
+            <p>Orçamento para: <strong id="modal-product-name"></strong></p>
+            <div class="lead-input-group">
+                <input type="tel" id="user-phone" class="lead-input" placeholder="(00) 00000-0000" maxlength="15">
+            </div>
+            <button class="lead-submit-btn" onclick="submitLead()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function initPage() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            if (!id) return window.location.href = 'index.html';
+
+            try {
+                const { data: p, error } = await _supabase.from('produtos').select('*').eq('id', id).single();
+                if (error || !p) throw error;
+
+                // Preenchimento Básico
+                document.getElementById('prod-nome').textContent = p.nome;
+                document.getElementById('prod-subtitulo').textContent = p.subtitulo || "";
+                document.getElementById('prod-desc').textContent = p.descricao || "Sem descrição.";
+                document.getElementById('bread-category').textContent = p.categoria;
+                document.getElementById('bread-name').textContent = p.nome;
+
+                // Ficha Técnica e Tag abaixo dela
+                if (p.ficha_tecnica) {
+                    document.getElementById('prod-tech').textContent = p.ficha_tecnica;
+                } else {
+                    document.getElementById('prod-tech').textContent = "Consulte nossos especialistas para especificações.";
+                }
+
+                // Lógica da Tag (Silk, Bordado, etc)
+                if (p.tag_personalizacao) {
+                    document.getElementById('prod-tag').textContent = p.tag_personalizacao;
+                    document.getElementById('prod-tag-container').style.display = 'block';
+                }
+
+                // Galeria
+                const mainImg = document.getElementById('main-view');
+                const thumbGrid = document.getElementById('thumb-grid');
+                if (p.fotos && p.fotos.length > 0) {
+                    mainImg.src = p.fotos[0];
+                    p.fotos.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.onclick = () => mainImg.src = url;
+                        thumbGrid.appendChild(img);
+                    });
+                }
+
+                document.getElementById('btn-orcamento').onclick = () => openLeadModal(p.nome);
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'grid';
+
+            } catch (err) {
+                document.getElementById('loading-screen').innerHTML = "Erro ao carregar produto.";
+            }
+        }
+
+        // Funções de Modal e Lead (Mantidas do original)
+        function openLeadModal(nome) {
+            window.currentProductName = nome;
+            document.getElementById('modal-product-name').textContent = nome;
+            document.getElementById('lead-modal-overlay').classList.add('active');
+        }
+        function closeLeadModal() { document.getElementById('lead-modal-overlay').classList.remove('active'); }
+        async function submitLead() {
+            const phone = document.getElementById('user-phone').value;
+            if (phone.length < 14) return alert("WhatsApp inválido.");
+            await _supabase.from('leads').insert([{ telefone: phone, nome_produto: window.currentProductName }]);
+            window.open(`https://wa.me/5528999763505?text=Orcamento: ${window.currentProductName}`, '_blank');
+            closeLeadModal();
+        }
+
+        // Máscara
+        document.getElementById('user-phone').addEventListener('input', (e) => {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+
+</html>

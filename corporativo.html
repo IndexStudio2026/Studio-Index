@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Index | Corporativo</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <style>
+        /* Garantir que as imagens corporativas sigam o padrão de troca fluida */
+        .image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .card-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+
+        .card-image.active {
+            opacity: 1;
+        }
+
+        .card-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            z-index: 10;
+            text-transform: uppercase;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <a href="index.html">
+                <img src="images/uploaded_image_1767635167797.png" alt="Studio Index Logo">
+            </a>
+        </div>
+        <nav class="header-nav">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="marcas.html" class="nav-link">Marca</a>
+            <a href="corporativo.html" class="nav-link active">Empresa</a>
+        </nav>
+        <a href="#" onclick="openLeadModal('Contato Corporativo'); return false;" class="header-cta">Contato</a>
+    </header>
+
+    <div class="catalog-header">
+        <h2>Soluções Corporativas</h2>
+        <p>Uniformes e acabamentos premium para sua empresa</p>
+    </div>
+
+    <nav class="filter-bar" id="dynamic-filters">
+        <button class="filter-btn active" onclick="filterProducts('all', event)">Todos</button>
+    </nav>
+
+    <main class="product-grid" id="product-container">
+        <p style="text-align: center; color: white; grid-column: 1/-1; padding: 50px;">Carregando soluções
+            corporativas...</p>
+    </main>
+
+    <section class="clients-section">
+        <div class="clients-carousel-container">
+            <div class="clients-carousel-track" id="logo-track">
+                <!-- Logos dinâmicas -->
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <div class="about-content">
+            <h2>Branding Têxtil</h2>
+            <h3>Construindo a identidade visual da sua equipe.</h3>
+            <p>Acreditamos que o uniforme é a primeira impressão de uma empresa. Por isso, desenvolvemos soluções que
+                unem durabilidade industrial com o design contemporâneo do Studio Index.</p>
+
+            <div class="about-pillars">
+                <div class="pillar-item">
+                    <h4>Identidade Corporativa</h4>
+                    <p>Peças que transmitem profissionalismo e confiança.</p>
+                </div>
+                <div class="pillar-item">
+                    <h4>Conforto & Performance</h4>
+                    <p>Modelagens pensadas para o dia a dia produtivo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="about-image">
+            <img src="images/corporate_embroidery_1767634005738.png" alt="Bordado Corporativo Studio Index">
+        </div>
+    </section>
+
+    <div id="lead-modal-overlay" class="lead-modal-overlay">
+        <div class="lead-modal">
+            <button class="lead-modal-close" onclick="closeLeadModal()">&times;</button>
+            <div class="lead-modal-icon">
+                <svg fill="currentColor" width="30" height="30" viewBox="0 0 24 24">
+                    <path
+                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                </svg>
+            </div>
+            <h3>Fale Conosco</h3>
+            <p>Deixe seu WhatsApp para iniciar seu atendimento.</p>
+            <div class="lead-input-group">
+                <input type="tel" id="user-phone" class="lead-input" placeholder="(00) 00000-0000" maxlength="15">
+            </div>
+            <button class="lead-submit-btn" id="submit-btn" onclick="submitLead()">Falar com Especialista</button>
+        </div>
+    </div>
+
+    <script>
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let rotationInterval;
+        let categoriesList = [];
+
+        // 1. CARREGA OS FILTROS DO BANCO (TIPO CORPORATIVO)
+        async function loadFilters() {
+            const { data: cats } = await _supabase
+                .from('categorias')
+                .select('*')
+                .eq('tipo', 'corporativo')
+                .order('nome');
+
+            if (cats) {
+                categoriesList = cats;
+                const filterBar = document.getElementById('dynamic-filters');
+                cats.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-btn';
+                    btn.textContent = cat.nome;
+                    btn.onclick = (e) => filterProducts(cat.slug, e);
+                    filterBar.appendChild(btn);
+                });
+            }
+        }
+
+        // 2. RENDERIZA O CATÁLOGO
+        async function renderCorporateCatalog() {
+            const container = document.getElementById('product-container');
+            try {
+                await loadFilters(); // Garante que as categorias carreguem antes
+
+                const { data: products, error } = await _supabase
+                    .from('produtos')
+                    .select('*')
+                    .eq('categoria', 'corporativo')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                if (!products || products.length === 0) {
+                    container.innerHTML = '<p style="color: white; text-align: center; grid-column: 1/-1;">Nenhuma solução encontrada.</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                products.forEach(p => {
+                    const fotos = (p.fotos && p.fotos.length > 0) ? p.fotos : ['images/placeholder.png'];
+                    const imagensHtml = fotos.map((url, index) => `
+                        <img src="${url}" class="card-image ${index === 0 ? 'active' : ''}" data-index="${index}">
+                    `).join('');
+
+                    // Busca o nome legível da categoria
+                    const catObj = categoriesList.find(c => c.slug === p.tag_personalizacao);
+                    const displayTag = catObj ? catObj.nome : (p.tag_personalizacao || 'Corporativo');
+
+                    container.innerHTML += `
+                        <a href="product-detail.html?id=${p.id}" class="product-card-link" style="text-decoration: none; color: inherit;">
+                            <div class="product-card" 
+                                 data-subtag="${(p.tag_personalizacao || '').toLowerCase()}"
+                                 onmouseenter="startRotation(this)" 
+                                 onmouseleave="stopRotation(this)">
+                                <div class="image-container">
+                                    <span class="card-tag">${displayTag}</span>
+                                    ${imagensHtml}
+                                </div>
+                                <div class="card-content">
+                                    <h3 class="card-title">${p.nome}</h3>
+                                    <span class="card-tap-info">Ver Detalhes →</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+            } catch (err) {
+                container.innerHTML = '<p style="color: red; text-align: center; grid-column: 1/-1;">Erro ao carregar.</p>';
+            }
+        }
+
+        // --- FUNÇÕES DE ROTAÇÃO E FILTRO ---
+
+        function startRotation(card) {
+            const images = card.querySelectorAll('.card-image');
+            if (images.length <= 1) return;
+            let currentIndex = 0;
+            clearInterval(rotationInterval);
+            rotationInterval = setInterval(() => {
+                images[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % images.length;
+                images[currentIndex].classList.add('active');
+            }, 1200);
+        }
+
+        function stopRotation(card) {
+            clearInterval(rotationInterval);
+            const images = card.querySelectorAll('.card-image');
+            images.forEach((img, index) => {
+                img.classList.remove('active');
+                if (index === 0) img.classList.add('active');
+            });
+        }
+
+        function filterProducts(slug, event) {
+            const cards = document.querySelectorAll('.product-card-link');
+            const btns = document.querySelectorAll('.filter-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            cards.forEach(card => {
+                const item = card.querySelector('.product-card');
+                const tag = item.getAttribute('data-subtag');
+                card.style.display = (slug === 'all' || tag === slug.toLowerCase()) ? 'block' : 'none';
+            });
+        }
+
+        function openLeadModal(title) {
+            window.currentLeadProduct = title;
+            document.getElementById('lead-modal-overlay').classList.add('active');
+        }
+        function closeLeadModal() {
+            document.getElementById('lead-modal-overlay').classList.remove('active');
+        }
+        async function submitLead() {
+            const phone = document.getElementById('user-phone').value;
+            if (phone.length < 14) return alert('Telefone inválido');
+            try {
+                await _supabase.from('leads').insert([{ telefone: phone, nome_produto: `CORP: ${window.currentLeadProduct}` }]);
+                window.open(`https://wa.me/5528999763505?text=Olá! Contato sobre: ${window.currentLeadProduct}`, '_blank');
+                closeLeadModal();
+            } catch (e) { window.open(`https://wa.me/5528999763505`, '_blank'); }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.shiftKey && (e.key === 'L' || e.key === 'l')) window.location.href = 'admin.html';
+        });
+
+        async function loadClientLogos() {
+            const track = document.getElementById('logo-track');
+            if (!track) return;
+            try {
+                const { data } = await _supabase.from('site_config').select('*').eq('id', 'client_logos').maybeSingle();
+                const config = data ? data.data : { corporate_logos: [] };
+                const logos = config.corporate_logos || [];
+
+                if (logos.length === 0) {
+                    document.querySelector('.clients-section').style.display = 'none';
+                    return;
+                }
+
+                track.innerHTML = logos.map(url => `
+                    <div class="client-item">
+                        <img src="${url}" alt="Parceiro Corporativo">
+                    </div>
+                `).join('');
+            } catch (e) { console.error("Erro logos:", e); }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCorporateCatalog();
+            loadClientLogos();
+            document.getElementById('user-phone').addEventListener('input', (e) => {
+                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+                e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+            });
+        });
+    </script>
+</body>
+
+</html>

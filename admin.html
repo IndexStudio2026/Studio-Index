@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Index | Admin</title>
+    <link rel="stylesheet" href="admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+
+<body>
+
+    <div id="login-section" class="login-overlay">
+        <div class="auth-card">
+            <img src="images/Index_branca.png" alt="Studio Index">
+            <div class="input-group">
+                <input type="password" id="admin-key" placeholder="Senha de acesso" autofocus>
+            </div>
+            <button class="btn-primary" onclick="checkAccess()">Entrar no Painel</button>
+        </div>
+    </div>
+
+    <div id="admin-app" class="app-container" style="display: none;">
+        <aside class="sidebar">
+            <div class="brand">
+                <img src="images/Index_branca.png" alt="Studio Index" style="height: 32px;">
+            </div>
+
+            <nav>
+                <div class="nav-item active" onclick="switchView('dashboard', this)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                    Dashboard
+                </div>
+                <div class="nav-item" onclick="switchView('products', this)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                        <path d="m3.3 7 8.7 5 8.7-5" />
+                        <path d="M12 22v-10" />
+                    </svg>
+                    Produtos
+                </div>
+                <div class="nav-item" onclick="switchView('categories', this)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="4" y1="21" x2="4" y2="14" />
+                        <line x1="4" y1="10" x2="4" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12" y2="3" />
+                        <line x1="20" y1="21" x2="20" y2="16" />
+                        <line x1="20" y1="12" x2="20" y2="3" />
+                        <line x1="2" y1="14" x2="6" y2="14" />
+                        <line x1="10" y1="8" x2="14" y2="8" />
+                        <line x1="18" y1="16" x2="22" y2="16" />
+                    </svg>
+                    Filtros/Categorias
+                </div>
+                <div class="nav-item" onclick="switchView('leads', this)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                    </svg>
+                    Leads (WhatsApp)
+                </div>
+                <div class="nav-item" onclick="switchView('logos', this)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    Gerenciar Logos
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="location.reload()">Sair da Conta</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="breadcrumbs">Admin / <strong id="crumb-name">Dashboard</strong></div>
+            </div>
+
+            <div class="content-scroll">
+                <div id="view-dashboard">
+                    <h1 class="page-title">Dashboard</h1>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px;">
+                        <div class="card-stats">
+                            <h3>Total de Produtos</h3>
+                            <p id="stat-products">0</p>
+                        </div>
+                        <div class="card-stats">
+                            <h3>Novos Leads</h3>
+                            <p id="stat-leads" style="color: #10b981;">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-products" style="display:none">
+                    <div class="header-actions">
+                        <h1>Produtos</h1>
+                        <button class="btn-add" onclick="openModal()">+ Novo Produto</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Página</th>
+                                    <th>Categoria/Filtro</th>
+                                    <th style="text-align:right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-list"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="view-categories" style="display:none">
+                    <div class="header-actions">
+                        <h1>Gerenciar Filtros</h1>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="new-cat-name" placeholder="Ex: Camisetas"
+                                style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                            <select id="new-cat-type" style="padding: 10px; border-radius: 6px;">
+                                <option value="streetwear">Marca (Streetwear)</option>
+                                <option value="corporativo">Empresa (Corporativo)</option>
+                            </select>
+                            <button class="btn-add" onclick="saveCategory()">Criar Filtro</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome do Filtro</th>
+                                    <th>Aparece em</th>
+                                    <th style="text-align:right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categories-list"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="view-leads" style="display:none">
+                    <h1 class="page-title">Contatos Recebidos</h1>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Telefone</th>
+                                    <th>Interesse</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leads-list"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="view-logos" style="display:none">
+                    <div class="header-actions">
+                        <h1>Gerenciar Logos de Clientes</h1>
+                        <p class="page-subtitle">Personalize as logos que aparecem nos carrosséis das páginas Marca e
+                            Empresa.</p>
+                    </div>
+
+                    <div class="upload-compact-card">
+                        <h3>Adicionar Nova Logo</h3>
+                        <div
+                            style="display: grid; grid-template-columns: 1fr 200px auto; gap: 20px; align-items: flex-end;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Arquivo da Logo</label>
+                                <input type="file" id="logo-file" accept="image/*">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Destino da Logo</label>
+                                <select id="logo-type">
+                                    <option value="marca">Página Marca</option>
+                                    <option value="empresa">Página Empresa</option>
+                                </select>
+                            </div>
+                            <button class="btn-primary" onclick="uploadLogo()"
+                                style="width: auto; padding: 12px 24px;">Subir Logo</button>
+                        </div>
+                    </div>
+
+                    <div class="assets-grid" id="logos-grid">
+                        <!-- Logos dinâmicas em formato de card -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="product-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 700px; width: 90%;">
+            <h3 id="modal-title">Novo Produto</h3>
+            <input type="hidden" id="edit-id">
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Nome do Produto</label>
+                        <input type="text" id="p-name">
+                    </div>
+                    <div class="form-group">
+                        <label>Subtítulo</label>
+                        <input type="text" id="p-subtitle">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="p-desc" rows="3"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Página de exibição</label>
+                        <select id="p-main-category">
+                            <option value="streetwear">Marca (Streetwear)</option>
+                            <option value="corporativo">Empresa (Corporativo)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Filtro/Categoria (Crie na aba Filtros)</label>
+                        <select id="p-tag">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Ficha Técnica</label>
+                    <textarea id="p-tech" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Imagens</label>
+                    <input type="file" id="p-files" accept="image/*" multiple>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-save" id="save-btn" onclick="handleSave()">Salvar Dados</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let _supabase;
+
+        function initSupabase() {
+            _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        function checkAccess() {
+            if (document.getElementById('admin-key').value === 'index2026') {
+                initSupabase();
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('admin-app').style.display = 'flex';
+                updateStats();
+                loadCategories();
+                renderProducts();
+                renderLeads();
+                loadLogos();
+            } else {
+                alert("Senha incorreta");
+            }
+        }
+
+        function switchView(view, el) {
+            ['dashboard', 'products', 'leads', 'categories', 'logos'].forEach(v => {
+                const viewEl = document.getElementById('view-' + v);
+                if (viewEl) viewEl.style.display = 'none';
+            });
+            document.getElementById('view-' + view).style.display = 'block';
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('crumb-name').innerText = el.innerText.trim();
+        }
+
+        async function updateStats() {
+            const { count: pCount } = await _supabase.from('produtos').select('*', { count: 'exact', head: true });
+            const { count: lCount } = await _supabase.from('leads').select('*', { count: 'exact', head: true });
+            document.getElementById('stat-products').innerText = pCount || 0;
+            document.getElementById('stat-leads').innerText = lCount || 0;
+        }
+
+        // --- LÓGICA DE CATEGORIAS ---
+        async function loadCategories() {
+            const { data: cats } = await _supabase.from('categorias').select('*').order('nome');
+
+            // Lista na aba de categorias
+            const catBody = document.getElementById('categories-list');
+            catBody.innerHTML = cats.map(c => `
+                <tr>
+                    <td><strong>${c.nome}</strong></td>
+                    <td>${c.tipo === 'streetwear' ? 'Marca' : 'Empresa'}</td>
+                    <td style="text-align:right;">
+                        <button class="action-btn delete" onclick="deleteCategory('${c.id}')">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Select no modal de produto
+            const pTag = document.getElementById('p-tag');
+            pTag.innerHTML = '<option value="">Sem Filtro</option>' +
+                cats.map(c => `<option value="${c.slug}">${c.nome} (${c.tipo})</option>`).join('');
+        }
+
+        async function saveCategory() {
+            const nome = document.getElementById('new-cat-name').value;
+            const tipo = document.getElementById('new-cat-type').value;
+            if (!nome) return alert("Digite o nome");
+
+            const slug = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
+
+            await _supabase.from('categorias').insert([{ nome, slug, tipo }]);
+            document.getElementById('new-cat-name').value = "";
+            loadCategories();
+        }
+
+        async function deleteCategory(id) {
+            if (confirm("Excluir este filtro? Produtos marcados com ele ficarão sem categoria.")) {
+                await _supabase.from('categorias').delete().eq('id', id);
+                loadCategories();
+            }
+        }
+
+        // --- LÓGICA DE PRODUTOS ---
+        async function renderProducts() {
+            const { data } = await _supabase.from('produtos').select('*').order('created_at', { ascending: false });
+            const tbody = document.getElementById('product-list');
+            tbody.innerHTML = data.map(p => `
+                <tr>
+                    <td><strong>${p.nome}</strong></td>
+                    <td><span class="badge ${p.categoria}">${p.categoria}</span></td>
+                    <td>${p.tag_personalizacao || '---'}</td>
+                    <td style="text-align:right;">
+                        <button class="action-btn edit" onclick="openEditModal('${p.id}')" style="background:#3b82f6; margin-right:5px;">Editar</button>
+                        <button class="action-btn delete" onclick="deleteProduct('${p.id}')">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function openEditModal(id) {
+            const { data: p } = await _supabase.from('produtos').select('*').eq('id', id).single();
+            document.getElementById('modal-title').innerText = "Editar Produto";
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('p-name').value = p.nome;
+            document.getElementById('p-subtitle').value = p.subtitulo || "";
+            document.getElementById('p-desc').value = p.descricao || "";
+            document.getElementById('p-main-category').value = p.categoria;
+            document.getElementById('p-tag').value = p.tag_personalizacao || "";
+            document.getElementById('p-tech').value = p.ficha_tecnica || "";
+            document.getElementById('product-modal').style.display = 'flex';
+        }
+
+        function openModal() {
+            document.getElementById('modal-title').innerText = "Novo Produto";
+            document.getElementById('edit-id').value = "";
+            document.getElementById('p-name').value = "";
+            document.getElementById('p-tag').value = "";
+            document.getElementById('product-modal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('product-modal').style.display = 'none'; }
+
+        async function handleSave() {
+            const id = document.getElementById('edit-id').value;
+            const files = document.getElementById('p-files').files;
+            const btn = document.getElementById('save-btn');
+
+            btn.disabled = true;
+            btn.innerText = "Salvando...";
+
+            try {
+                let uploadedUrls = [];
+                if (files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const fileName = `${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
+                        await _supabase.storage.from('produtos').upload(fileName, file);
+                        const { data: urlData } = _supabase.storage.from('produtos').getPublicUrl(fileName);
+                        uploadedUrls.push(urlData.publicUrl);
+                    }
+                }
+
+                const productData = {
+                    nome: document.getElementById('p-name').value,
+                    subtitulo: document.getElementById('p-subtitle').value,
+                    descricao: document.getElementById('p-desc').value,
+                    categoria: document.getElementById('p-main-category').value,
+                    tag_personalizacao: document.getElementById('p-tag').value,
+                    ficha_tecnica: document.getElementById('p-tech').value
+                };
+
+                if (uploadedUrls.length > 0) productData.fotos = uploadedUrls;
+
+                if (id) await _supabase.from('produtos').update(productData).eq('id', id);
+                else await _supabase.from('produtos').insert([productData]);
+
+                closeModal();
+                renderProducts();
+                updateStats();
+            } catch (e) { alert("Erro: " + e.message); }
+            finally { btn.disabled = false; btn.innerText = "Salvar Dados"; }
+        }
+
+        async function deleteProduct(id) {
+            if (confirm("Excluir produto permanentemente?")) {
+                await _supabase.from('produtos').delete().eq('id', id);
+                renderProducts();
+                updateStats();
+            }
+        }
+
+        async function renderLeads() {
+            const { data } = await _supabase.from('leads').select('*').order('created_at', { ascending: false });
+            document.getElementById('leads-list').innerHTML = data.map(l => `
+                <tr>
+                    <td>${l.nome_produto}</td>
+                    <td>Cliente Interes.</td>
+                    <td>${l.telefone}</td>
+                    <td>${new Date(l.created_at).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // --- LÓGICA DE LOGOS (REDESIGNED) ---
+        async function loadLogos() {
+            const { data } = await _supabase.from('site_config').select('*').eq('id', 'client_logos').maybeSingle();
+            let logos = data ? data.data : { brand_logos: [], corporate_logos: [] };
+
+            const grid = document.getElementById('logos-grid');
+            let html = '';
+
+            // Helper to render card
+            const createCard = (url, idx, type, typeLabel, badgeClass) => `
+                <div class="logo-manage-card">
+                    <div class="logo-actions">
+                        <button class="btn-delete-icon" onclick="deleteLogo(${idx}, '${type}')" title="Remover Logo">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="logo-preview-box">
+                        <img src="${url}" alt="Preview">
+                    </div>
+                    <div class="logo-info-footer">
+                        <span class="logo-type-badge ${badgeClass}">${typeLabel}</span>
+                    </div>
+                </div>
+            `;
+
+            (logos.brand_logos || []).forEach((url, idx) => {
+                html += createCard(url, idx, 'brand_logos', 'Marca', 'type-marca');
+            });
+
+            (logos.corporate_logos || []).forEach((url, idx) => {
+                html += createCard(url, idx, 'corporate_logos', 'Empresa', 'type-empresa');
+            });
+
+            grid.innerHTML = html || '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Nenhuma logo encontrada. Comece subindo uma nova logo acima.</div>';
+        }
+
+        async function uploadLogo() {
+            const fileInput = document.getElementById('logo-file');
+            const typeSelect = document.getElementById('logo-type');
+            const type = typeSelect.value;
+            const file = fileInput.files[0];
+
+            if (!file) return alert("Selecione um arquivo de imagem.");
+
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Subindo...";
+
+            try {
+                const fileName = `logo-${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
+                const { data: uploadData, error: uploadError } = await _supabase.storage.from('produtos').upload(fileName, file);
+
+                if (uploadError) throw uploadError;
+
+                const { data: urlData } = _supabase.storage.from('produtos').getPublicUrl(fileName);
+                const publicUrl = urlData.publicUrl;
+
+                // Fetch current list
+                const { data: config } = await _supabase.from('site_config').select('*').eq('id', 'client_logos').maybeSingle();
+                let logos = config ? config.data : { brand_logos: [], corporate_logos: [] };
+
+                const targetKey = type === 'marca' ? 'brand_logos' : 'corporate_logos';
+                if (!logos[targetKey]) logos[targetKey] = [];
+                logos[targetKey].push(publicUrl);
+
+                // Save back
+                const { error: saveError } = await _supabase.from('site_config').upsert({ id: 'client_logos', data: logos });
+                if (saveError) throw saveError;
+
+                fileInput.value = "";
+                loadLogos();
+                alert("Logo adicionada com sucesso!");
+            } catch (e) {
+                console.error(e);
+                alert("Erro ao subir logo: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+
+        async function deleteLogo(index, listKey) {
+            if (!confirm("Remover esta logo?")) return;
+
+            try {
+                const { data: config } = await _supabase.from('site_config').select('*').eq('id', 'client_logos').single();
+                let logos = config.data;
+
+                logos[listKey].splice(index, 1);
+
+                const { error } = await _supabase.from('site_config').upsert({ id: 'client_logos', data: logos });
+                if (error) throw error;
+
+                loadLogos();
+            } catch (e) {
+                alert("Erro ao remover logo: " + e.message);
+            }
+        }
+
+        document.getElementById('admin-key')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkAccess(); });
+    </script>
+</body>
+
+</html>
