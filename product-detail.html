@@ -2,6 +2,10 @@
 <html lang="pt-BR">
 
 <head>
+
+    <link rel="icon" type="image/png" href="images/Index 16x16x.png">
+    <link rel="apple-touch-icon" href="images/Index 16x16x.png">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes do Produto | Studio Index</title>
@@ -179,7 +183,7 @@
             const phone = document.getElementById('user-phone').value;
             if (phone.length < 14) return alert("WhatsApp inválido.");
             await _supabase.from('leads').insert([{ telefone: phone, nome_produto: window.currentProductName }]);
-            window.open(`https://wa.me/5528999763505?text=Orcamento: ${window.currentProductName}`, '_blank');
+            window.open(`https://wa.me/5528999763505?text=Orçamento: ${window.currentProductName}`, '_blank');
             closeLeadModal();
         }
 
