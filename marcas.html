@@ -92,6 +92,43 @@
             <div class="clients-carousel-track" id="logo-track">
             </div>
         </div>
+        <style>
+            .clients-section {
+                overflow: hidden;
+            }
+
+            .clients-carousel-container {
+                overflow: hidden;
+                padding: 5px 0;
+            }
+
+            .clients-carousel-track {
+                display: flex;
+                gap: 30px;
+                width: max-content;
+                padding: 10px 0;
+                animation: scrollContinuous 30s linear infinite;
+            }
+
+            .clients-carousel-track .client-item {
+                flex-shrink: 0;
+                overflow: visible;
+            }
+
+            @keyframes scrollContinuous {
+                0% {
+                    transform: translateX(0);
+                }
+
+                100% {
+                    transform: translateX(-50%);
+                }
+            }
+
+            .clients-carousel-track:hover {
+                animation-play-state: paused;
+            }
+        </style>
     </section>
 
     <section class="about-section">
@@ -113,7 +150,7 @@
             </div>
         </div>
         <div class="about-image">
-            <img src="images/streetwear_hoodie_1767633991018.png" alt="Produção Streetwear Studio Index">
+            <img src="images/sabota.png" alt="Produção Streetwear Studio Index">
         </div>
     </section>
 
@@ -267,7 +304,9 @@
                     document.querySelector('.clients-section').style.display = 'none';
                     return;
                 }
-                track.innerHTML = logos.map(url => `<div class="client-item"><img src="${url}" alt="Logo Parceiro"></div>`).join('');
+                // Duplicar logos para loop infinito contínuo
+                const logosHtml = logos.map(url => `<div class="client-item"><img src="${url}" alt="Logo Parceiro"></div>`).join('');
+                track.innerHTML = logosHtml + logosHtml;
             } catch (e) { console.error("Erro logos:", e); }
         }
 

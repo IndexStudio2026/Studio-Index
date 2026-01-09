@@ -361,7 +361,9 @@ header {
     margin: 120px 0 0;
     /* Added 120px top margin */
     align-items: stretch;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
+    z-index: 2;
 }
 
 .about-content {
@@ -1258,10 +1260,10 @@ footer {
 
 /* Clients Section */
 .clients-section {
-    background: #FAFAFA;
-    padding: 60px 0 80px;
-    border-top: 1px solid var(--color-border);
-    margin-top: 60px;
+    background: transparent;
+    padding: 0;
+    border: none;
+    margin-top: 20px;
     overflow: hidden;
     text-align: center;
 }
