@@ -327,12 +327,110 @@
                     return;
                 }
 
-                track.innerHTML = logos.map(url => `
+                // Duplicar logos muitas vezes (12x) para criar um buffer enorme
+                const logosHtml = logos.map(url => `
                     <div class="client-item">
                         <img src="${url}" alt="Parceiro Corporativo">
                     </div>
                 `).join('');
+
+                let finalHtml = '';
+                for (let i = 0; i < 12; i++) {
+                    finalHtml += logosHtml;
+                }
+                track.innerHTML = finalHtml;
+
+                initCarousel();
             } catch (e) { console.error("Erro logos:", e); }
+        }
+
+        function initCarousel() {
+            const container = document.querySelector('.clients-carousel-container');
+            const track = document.getElementById('logo-track');
+            if (!container || !track) return;
+
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            // Velocidade controlada: 0.5 mobile (conforme pedido), 0.3 desktop
+            let autoScrollSpeed = window.innerWidth < 768 ? 0.5 : 0.3;
+            let isPaused = false;
+            let animationId;
+            let scrollAccumulator = 0;
+
+            // Aguarda renderização
+            setTimeout(() => {
+                const middle = track.scrollWidth / 2;
+                container.scrollLeft = middle;
+            }, 100);
+
+            // Mouse Events
+            container.addEventListener('mousedown', (e) => {
+                isDown = true;
+                isPaused = true;
+                container.classList.add('active');
+                startX = e.pageX - container.offsetLeft;
+                scrollLeft = container.scrollLeft;
+                cancelAnimationFrame(animationId);
+            });
+
+            container.addEventListener('mouseleave', () => {
+                isDown = false;
+                isPaused = false;
+                container.classList.remove('active');
+                requestAnimationFrame(animateScroll);
+            });
+
+            container.addEventListener('mouseup', () => {
+                isDown = false;
+                isPaused = false;
+                container.classList.remove('active');
+                requestAnimationFrame(animateScroll);
+            });
+
+            container.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - container.offsetLeft;
+                const walk = (x - startX) * 2;
+                container.scrollLeft = scrollLeft - walk;
+            });
+
+            // Touch Events
+            container.addEventListener('touchstart', () => {
+                isPaused = true;
+                cancelAnimationFrame(animationId);
+            });
+
+            container.addEventListener('touchend', () => {
+                isPaused = false;
+                requestAnimationFrame(animateScroll);
+            });
+
+            function animateScroll() {
+                const totalWidth = track.scrollWidth;
+                const oneSetWidth = totalWidth / 12;
+
+                if (!isPaused) {
+                    scrollAccumulator += autoScrollSpeed;
+                    if (Math.abs(scrollAccumulator) >= 0.5) {
+                        container.scrollLeft += scrollAccumulator;
+                        scrollAccumulator = 0;
+                    }
+                }
+
+                // Lógica de centralização ("Infinite Loop")
+                if (container.scrollLeft < oneSetWidth * 4) {
+                    container.scrollLeft += oneSetWidth * 4;
+                }
+                else if (container.scrollLeft > oneSetWidth * 8) {
+                    container.scrollLeft -= oneSetWidth * 4;
+                }
+
+                animationId = requestAnimationFrame(animateScroll);
+            }
+
+            animationId = requestAnimationFrame(animateScroll);
         }
 
         document.addEventListener('DOMContentLoaded', () => {

@@ -1616,7 +1616,13 @@ footer {
     }
 
     .header-nav {
-        display: none !important;
+        display: flex !important;
+        gap: 15px !important;
+    }
+
+    .nav-link {
+        font-size: 0.75rem !important;
+        letter-spacing: 0.5px !important;
     }
 
     header .logo img {
