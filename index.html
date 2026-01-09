@@ -125,11 +125,13 @@
         function startHeroSlider() {
             let currentSlide = 0;
             const slides = document.querySelectorAll('.slide');
+            console.log('Total slides encontrados:', slides.length);
             if (slides.length === 0) return;
 
             setInterval(() => {
                 slides[currentSlide].classList.remove('active');
                 currentSlide = (currentSlide + 1) % slides.length;
+                console.log('Mudando para slide:', currentSlide + 1);
                 slides[currentSlide].classList.add('active');
             }, 5000);
         }
