@@ -98,8 +98,21 @@
             }
 
             .clients-carousel-container {
-                overflow: hidden;
+                overflow-x: auto;
+                overflow-y: hidden;
                 padding: 5px 0;
+                cursor: grab;
+                /* Hide scrollbar */
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .clients-carousel-container::-webkit-scrollbar {
+                display: none;
+            }
+
+            .clients-carousel-container:active {
+                cursor: grabbing;
             }
 
             .clients-carousel-track {
@@ -107,26 +120,19 @@
                 gap: 30px;
                 width: max-content;
                 padding: 10px 0;
-                animation: scrollContinuous 30s linear infinite;
+                /* Animation removed for JS control */
             }
 
             .clients-carousel-track .client-item {
                 flex-shrink: 0;
                 overflow: visible;
+                user-select: none;
+                /* Prevent image selection while dragging */
             }
 
-            @keyframes scrollContinuous {
-                0% {
-                    transform: translateX(0);
-                }
-
-                100% {
-                    transform: translateX(-50%);
-                }
-            }
-
-            .clients-carousel-track:hover {
-                animation-play-state: paused;
+            .clients-carousel-track .client-item img {
+                pointer-events: none;
+                /* Prevent image drag behavior */
             }
         </style>
     </section>
@@ -304,10 +310,115 @@
                     document.querySelector('.clients-section').style.display = 'none';
                     return;
                 }
-                // Duplicar logos para loop infinito contínuo
+                // Duplicar logos muitas vezes (8x) para criar um buffer enorme
+                // Isso garante que o usuário nunca chegue na borda "0" fisicamente
+                // E a lógica de loop o mantém sempre no meio
                 const logosHtml = logos.map(url => `<div class="client-item"><img src="${url}" alt="Logo Parceiro"></div>`).join('');
-                track.innerHTML = logosHtml + logosHtml;
+                let finalHtml = '';
+                for (let i = 0; i < 12; i++) { // 12x para garantir muito espaço
+                    finalHtml += logosHtml;
+                }
+                track.innerHTML = finalHtml;
+
+                initCarousel();
             } catch (e) { console.error("Erro logos:", e); }
+        }
+
+        function initCarousel() {
+            const container = document.querySelector('.clients-carousel-container');
+            const track = document.getElementById('logo-track');
+            if (!container || !track) return;
+
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            // Velocidade controlada
+            let autoScrollSpeed = window.innerWidth < 768 ? 0.2 : 0.3;
+            let isPaused = false;
+            let animationId;
+            let scrollAccumulator = 0; // Acumulador para fluidez em baixa velocidade
+
+            // Aguarda renderização para posicionar no meio exato
+            setTimeout(() => {
+                const middle = track.scrollWidth / 2;
+                container.scrollLeft = middle;
+            }, 100);
+
+            // Drag Mouse Events
+            container.addEventListener('mousedown', (e) => {
+                isDown = true;
+                isPaused = true;
+                container.classList.add('active');
+                startX = e.pageX - container.offsetLeft;
+                scrollLeft = container.scrollLeft;
+                cancelAnimationFrame(animationId);
+            });
+
+            container.addEventListener('mouseleave', () => {
+                isDown = false;
+                isPaused = false;
+                container.classList.remove('active');
+                requestAnimationFrame(animateScroll);
+            });
+
+            container.addEventListener('mouseup', () => {
+                isDown = false;
+                isPaused = false;
+                container.classList.remove('active');
+                requestAnimationFrame(animateScroll);
+            });
+
+            container.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - container.offsetLeft;
+                const walk = (x - startX) * 2;
+                container.scrollLeft = scrollLeft - walk;
+            });
+
+            // Touch Events (Mobile)
+            container.addEventListener('touchstart', () => {
+                isPaused = true;
+                cancelAnimationFrame(animationId);
+            });
+
+            container.addEventListener('touchend', () => {
+                isPaused = false;
+                requestAnimationFrame(animateScroll);
+            });
+
+            // Auto Scroll Function com Loop Infinito Bidirecional
+            function animateScroll() {
+                const totalWidth = track.scrollWidth;
+                const oneSetWidth = totalWidth / 12; // Já que duplicamos 12x
+
+                if (!isPaused) {
+                    // Acumula frações de pixel
+                    scrollAccumulator += autoScrollSpeed;
+
+                    // Só aplica se acumulou pelo menos 0.5px (ou 1px para ser seguro)
+                    if (Math.abs(scrollAccumulator) >= 0.5) {
+                        container.scrollLeft += scrollAccumulator;
+                        scrollAccumulator = 0; // Reseta acumulador
+                    }
+                }
+
+                // Lógica de centralização ("Infinite Loop")
+                // Mantém o scroll sempre entre 1/3 e 2/3 do total
+                // Se for muito para esquerda (< 4 sets), joga para o meio
+                if (container.scrollLeft < oneSetWidth * 4) {
+                    container.scrollLeft += oneSetWidth * 4;
+                }
+                // Se for muito para direita (> 8 sets), traz para o meio
+                else if (container.scrollLeft > oneSetWidth * 8) {
+                    container.scrollLeft -= oneSetWidth * 4;
+                }
+
+                animationId = requestAnimationFrame(animateScroll);
+            }
+
+            // Start Animation
+            animationId = requestAnimationFrame(animateScroll);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -327,6 +438,5 @@
         });
     </script>
 </body>
-
 
 </html>

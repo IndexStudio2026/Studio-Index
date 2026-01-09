@@ -93,6 +93,49 @@
                 <!-- Logos dinâmicas -->
             </div>
         </div>
+        <style>
+            .clients-section {
+                overflow: hidden;
+            }
+
+            .clients-carousel-container {
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 5px 0;
+                cursor: grab;
+                /* Hide scrollbar */
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .clients-carousel-container::-webkit-scrollbar {
+                display: none;
+            }
+
+            .clients-carousel-container:active {
+                cursor: grabbing;
+            }
+
+            .clients-carousel-track {
+                display: flex;
+                gap: 30px;
+                width: max-content;
+                padding: 10px 0;
+                /* Animation removed for JS control */
+            }
+
+            .clients-carousel-track .client-item {
+                flex-shrink: 0;
+                overflow: visible;
+                user-select: none;
+                /* Prevent image selection while dragging */
+            }
+
+            .clients-carousel-track .client-item img {
+                pointer-events: none;
+                /* Prevent image drag behavior */
+            }
+        </style>
     </section>
 
     <section class="about-section">
@@ -302,6 +345,5 @@
         });
     </script>
 </body>
-
 
 </html>
