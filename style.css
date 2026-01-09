@@ -466,6 +466,20 @@ header {
     }
 }
 
+@media (max-width: 768px) {
+    .about-image {
+        height: auto;
+        min-height: auto;
+        aspect-ratio: 4/5;
+        /* Proporção mais vertical para mobile */
+    }
+
+    .about-image img {
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
 /* Footer (Existing modified) */
 footer {
     background: #FAFAFA;
