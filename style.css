@@ -562,9 +562,9 @@ footer {
 }
 
 .typewriter-cont {
-    display: flex;
+    display: inline-flex;
     align-items: baseline;
-    width: 280px;
+    min-width: 280px;
     justify-content: flex-start;
 }
 
@@ -1005,6 +1005,17 @@ footer {
         /* Stack categories on mobile */
     }
 
+    .typewriter-line {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .typewriter-cont {
+        min-width: 0;
+        width: auto;
+        justify-content: center;
+    }
+
 
 
 
@@ -1099,7 +1110,8 @@ footer {
     .typewriter-cont {
         width: auto;
         /* Remove fixed width */
-        min-width: 120px;
+        min-width: 0;
+        justify-content: center;
     }
 
     .static-prefix {
@@ -1215,7 +1227,8 @@ footer {
     .typewriter-cont {
         width: auto;
         /* Remove fixed width */
-        min-width: 120px;
+        min-width: 0;
+        justify-content: center;
     }
 
     .static-prefix {
