@@ -564,7 +564,7 @@ footer {
 .typewriter-cont {
     display: flex;
     align-items: baseline;
-    min-width: 180px;
+    width: 280px;
     justify-content: flex-start;
 }
 

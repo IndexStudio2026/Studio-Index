@@ -94,8 +94,8 @@
 
                 // Cálculo preciso para não cortar a última letra
                 if (isDeleting) {
-                    textElement.textContent = currentWord.substring(0, charIndex);
                     charIndex--;
+                    textElement.textContent = currentWord.substring(0, charIndex);
                 } else {
                     textElement.textContent = currentWord.substring(0, charIndex + 1);
                     charIndex++;
@@ -107,8 +107,9 @@
                 if (!isDeleting && charIndex === currentWord.length) {
                     isDeleting = true;
                     typeSpeed = 2000; // Pausa ao completar a palavra
-                } else if (isDeleting && charIndex === 0) {
+                } else if (isDeleting && charIndex < 0) {
                     isDeleting = false;
+                    charIndex = 0;
                     wordIndex = (wordIndex + 1) % words.length;
                     typeSpeed = 500; // Pausa antes de começar nova palavra
                 }
