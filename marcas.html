@@ -358,14 +358,16 @@
                 isDown = false;
                 isPaused = false;
                 container.classList.remove('active');
-                requestAnimationFrame(animateScroll);
+                cancelAnimationFrame(animationId); // Stop existing loop if any
+                animationId = requestAnimationFrame(animateScroll);
             });
 
             container.addEventListener('mouseup', () => {
                 isDown = false;
                 isPaused = false;
                 container.classList.remove('active');
-                requestAnimationFrame(animateScroll);
+                cancelAnimationFrame(animationId); // Stop existing loop if any
+                animationId = requestAnimationFrame(animateScroll);
             });
 
             container.addEventListener('mousemove', (e) => {
@@ -384,7 +386,8 @@
 
             container.addEventListener('touchend', () => {
                 isPaused = false;
-                requestAnimationFrame(animateScroll);
+                cancelAnimationFrame(animationId); // Stop existing loop if any
+                animationId = requestAnimationFrame(animateScroll);
             });
 
             // Auto Scroll Function com Loop Infinito Bidirecional
@@ -418,6 +421,7 @@
             }
 
             // Start Animation
+            cancelAnimationFrame(animationId); // Ensure clean start
             animationId = requestAnimationFrame(animateScroll);
         }
 

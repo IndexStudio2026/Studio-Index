@@ -353,7 +353,7 @@
             let startX;
             let scrollLeft;
             // Velocidade controlada: 0.5 mobile (conforme pedido), 0.3 desktop
-            let autoScrollSpeed = window.innerWidth < 768 ? 0.4 : 0.2;
+            let autoScrollSpeed = window.innerWidth < 768 ? 0.5 : 0.3;
             let isPaused = false;
             let animationId;
             let scrollAccumulator = 0;
@@ -378,14 +378,16 @@
                 isDown = false;
                 isPaused = false;
                 container.classList.remove('active');
-                requestAnimationFrame(animateScroll);
+                cancelAnimationFrame(animationId); // Stop existing loop if any
+                animationId = requestAnimationFrame(animateScroll);
             });
 
             container.addEventListener('mouseup', () => {
                 isDown = false;
                 isPaused = false;
                 container.classList.remove('active');
-                requestAnimationFrame(animateScroll);
+                cancelAnimationFrame(animationId); // Stop existing loop if any
+                animationId = requestAnimationFrame(animateScroll);
             });
 
             container.addEventListener('mousemove', (e) => {
@@ -404,7 +406,8 @@
 
             container.addEventListener('touchend', () => {
                 isPaused = false;
-                requestAnimationFrame(animateScroll);
+                cancelAnimationFrame(animationId); // Stop existing loop if any
+                animationId = requestAnimationFrame(animateScroll);
             });
 
             function animateScroll() {
@@ -430,6 +433,7 @@
                 animationId = requestAnimationFrame(animateScroll);
             }
 
+            cancelAnimationFrame(animationId); // Ensure clean start
             animationId = requestAnimationFrame(animateScroll);
         }
 
@@ -443,6 +447,5 @@
         });
     </script>
 </body>
-
 
 </html>
