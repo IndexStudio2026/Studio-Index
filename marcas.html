@@ -310,23 +310,56 @@
                 container.innerHTML = '';
                 products.forEach(p => {
                     const fotos = (p.fotos && p.fotos.length > 0) ? p.fotos : ['images/placeholder.png'];
-                    const imagensHtml = fotos.map((url, index) => `<img src="${url}" class="card-image ${index === 0 ? 'active' : ''}" data-index="${index}">`).join('');
                     const catObj = categoriesList.find(c => c.slug === p.tag_personalizacao);
                     const displayTag = catObj ? catObj.nome : (p.tag_personalizacao || 'Streetwear');
 
-                    container.innerHTML += `
-                        <a href="product-detail.html?id=${p.id}" class="product-card-link" style="text-decoration: none; color: inherit;">
-                            <div class="product-card" data-subtag="${(p.tag_personalizacao || '').toLowerCase()}" onmouseenter="startRotation(this)" onmouseleave="stopRotation(this)">
-                                <div class="image-container">
-                                    <span class="card-tag">${displayTag}</span>
-                                    ${imagensHtml}
-                                </div>
-                                <div class="card-content">
-                                    <h3 class="card-title">${p.nome}</h3>
-                                    <span class="card-tap-info">Ver Detalhes →</span>
-                                </div>
-                            </div>
-                        </a>`;
+                    // Safe element creation
+                    const cardLink = document.createElement('a');
+                    cardLink.href = `product-detail.html?id=${p.id}`;
+                    cardLink.className = 'product-card-link';
+                    cardLink.style.textDecoration = 'none';
+                    cardLink.style.color = 'inherit';
+
+                    const cardDiv = document.createElement('div');
+                    cardDiv.className = 'product-card';
+                    cardDiv.dataset.subtag = (p.tag_personalizacao || '').toLowerCase();
+                    cardDiv.onmouseenter = () => startRotation(cardDiv);
+                    cardDiv.onmouseleave = () => stopRotation(cardDiv);
+
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'image-container';
+
+                    const tagSpan = document.createElement('span');
+                    tagSpan.className = 'card-tag';
+                    tagSpan.textContent = displayTag;
+                    imgContainer.appendChild(tagSpan);
+
+                    fotos.forEach((url, index) => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.className = `card-image ${index === 0 ? 'active' : ''}`;
+                        img.dataset.index = index;
+                        imgContainer.appendChild(img);
+                    });
+
+                    const cardContent = document.createElement('div');
+                    cardContent.className = 'card-content';
+
+                    const titleH3 = document.createElement('h3');
+                    titleH3.className = 'card-title';
+                    titleH3.textContent = p.nome;
+
+                    const tapInfo = document.createElement('span');
+                    tapInfo.className = 'card-tap-info';
+                    tapInfo.textContent = 'Ver Detalhes →';
+
+                    cardContent.appendChild(titleH3);
+                    cardContent.appendChild(tapInfo);
+
+                    cardDiv.appendChild(imgContainer);
+                    cardDiv.appendChild(cardContent);
+                    cardLink.appendChild(cardDiv);
+                    container.appendChild(cardLink);
                 });
             } catch (err) {
                 container.innerHTML = '<p style="color: red; text-align: center; grid-column: 1/-1;">Erro ao carregar dados.</p>';

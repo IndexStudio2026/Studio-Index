@@ -6,18 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Studio Index | Admin</title>
     <link rel="stylesheet" href="admin.css">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+
     <script src="config.js"></script>
 
     <link rel="icon" type="image/png" href="images/index 16x16x.png">
-
     <link rel="apple-touch-icon" href="images/index 16x16x.png">
 
     <meta property="og:site_name" content="Studio Index">
     <meta property="og:title" content="Studio Index | Private Label">
     <meta property="og:image" content="https://studioindex.com.br/images/index 16x16x.png">
     <meta property="og:type" content="website">
-
 </head>
 
 <body>
@@ -26,9 +27,12 @@
         <div class="auth-card">
             <img src="images/Index_branca.png" alt="Studio Index">
             <div class="input-group">
-                <input type="password" id="admin-key" placeholder="Senha de acesso" autofocus>
+                <input type="email" id="admin-email" placeholder="Email de Administrador" autofocus required>
             </div>
-            <button class="btn-primary" onclick="checkAccess()">Entrar no Painel</button>
+            <div class="input-group">
+                <input type="password" id="admin-password" placeholder="Sua Senha" required>
+            </div>
+            <button class="btn-primary" onclick="checkAccess()">Entrar com Segurança</button>
         </div>
     </div>
 
@@ -87,7 +91,7 @@
             </nav>
 
             <div class="sidebar-footer">
-                <button class="logout-btn" onclick="location.reload()">Sair da Conta</button>
+                <button class="logout-btn" onclick="handleLogout()">Sair da Conta</button>
             </div>
         </aside>
 
@@ -133,126 +137,116 @@
 
                 <div id="view-categories" style="display:none">
                     <div class="header-actions">
-                        <h1>Gerenciar Filtros</h1>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="new-cat-name" placeholder="Ex: Camisetas"
-                                style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                            <select id="new-cat-type" style="padding: 10px; border-radius: 6px;">
+                        <h1>Filtros & Categorias</h1>
+                        <div class="add-group">
+                            <input type="text" id="new-cat-name" placeholder="Nova Categoria..."
+                                style="padding: 8px; border: 1px solid #333; border-radius: 4px; background: #000; color: #fff;">
+                            <select id="new-cat-type"
+                                style="padding: 8px; border: 1px solid #333; border-radius: 4px; background: #000; color: #fff;">
                                 <option value="streetwear">Marca (Streetwear)</option>
                                 <option value="corporativo">Empresa (Corporativo)</option>
                             </select>
-                            <button class="btn-add" onclick="saveCategory()">Criar Filtro</button>
+                            <button class="btn-add" onclick="saveCategory()">+ Adicionar</button>
                         </div>
                     </div>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Nome do Filtro</th>
-                                    <th>Aparece em</th>
+                                    <th>Nome</th>
+                                    <th>Tipo</th>
                                     <th style="text-align:right;">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="categories-list"></tbody>
+                            <tbody id="cat-list"></tbody>
                         </table>
                     </div>
                 </div>
 
                 <div id="view-leads" style="display:none">
-                    <h1 class="page-title">Contatos Recebidos</h1>
+                    <h1>Leads (WhatsApp)</h1>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Data</th>
-                                    <th>Telefone</th>
-                                    <th>Interesse</th>
+                                    <th>Telefone/Contato</th>
+                                    <th>Interesse/Produto</th>
                                 </tr>
                             </thead>
-                            <tbody id="leads-list"></tbody>
+                            <tbody id="lead-list"></tbody>
                         </table>
                     </div>
                 </div>
 
                 <div id="view-logos" style="display:none">
                     <div class="header-actions">
-                        <h1>Gerenciar Logos de Clientes</h1>
-                        <p class="page-subtitle">Personalize as logos que aparecem nos carrosséis das páginas Marca e
-                            Empresa.</p>
-                    </div>
-
-                    <div class="upload-compact-card">
-                        <h3>Adicionar Nova Logo</h3>
-                        <div
-                            style="display: grid; grid-template-columns: 1fr 200px auto; gap: 20px; align-items: flex-end;">
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label">Arquivo da Logo</label>
-                                <input type="file" id="logo-file" accept="image/*">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label">Destino da Logo</label>
-                                <select id="logo-type">
-                                    <option value="marca">Página Marca</option>
-                                    <option value="empresa">Página Empresa</option>
-                                </select>
-                            </div>
-                            <button class="btn-primary" onclick="uploadLogo()"
-                                style="width: auto; padding: 12px 24px;">Subir Logo</button>
+                        <h1>Gerenciar Logos</h1>
+                        <div class="add-group">
+                            <input type="file" id="logo-file" accept="image/*" style="color: white;">
+                            <select id="logo-type"
+                                style="padding: 8px; border: 1px solid #333; border-radius: 4px; background: #000; color: #fff;">
+                                <option value="brand_logos">Marca Parceira</option>
+                                <option value="corporate_logos">Cliente Corporativo</option>
+                            </select>
+                            <button class="btn-add" onclick="uploadLogo()">+ Upload Logo</button>
                         </div>
                     </div>
-
-                    <div class="assets-grid" id="logos-grid">
-                        <!-- Logos dinâmicas em formato de card -->
-                    </div>
+                    <div class="logos-grid-container" id="logos-grid"></div>
                 </div>
+
             </div>
         </main>
     </div>
 
+    <!-- PRODUCT MODAL (MISSING BEFORE) -->
     <div id="product-modal" class="modal-overlay">
-        <div class="modal-card" style="max-width: 700px; width: 90%;">
-            <h3 id="modal-title">Novo Produto</h3>
-            <input type="hidden" id="edit-id">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Novo Produto</h3>
+            </div>
             <div class="modal-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label>Nome do Produto</label>
-                        <input type="text" id="p-name">
-                    </div>
-                    <div class="form-group">
-                        <label>Subtítulo</label>
-                        <input type="text" id="p-subtitle">
-                    </div>
+                <input type="hidden" id="edit-id">
+
+                <div class="form-group">
+                    <label class="form-label">Nome do Produto</label>
+                    <input type="text" id="p-name" placeholder="Ex: Camiseta Oversized">
                 </div>
 
                 <div class="form-group">
-                    <label>Descrição</label>
-                    <textarea id="p-desc" rows="3"></textarea>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label>Página de exibição</label>
-                        <select id="p-main-category">
-                            <option value="streetwear">Marca (Streetwear)</option>
-                            <option value="corporativo">Empresa (Corporativo)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Filtro/Categoria (Crie na aba Filtros)</label>
-                        <select id="p-tag">
-                        </select>
-                    </div>
+                    <label class="form-label">Subtítulo (Opcional)</label>
+                    <input type="text" id="p-subtitle" placeholder="Ex: Algodão 100%">
                 </div>
 
                 <div class="form-group">
-                    <label>Ficha Técnica</label>
-                    <textarea id="p-tech" rows="3"></textarea>
+                    <label class="form-label">Categoria (Filtro Principal)</label>
+                    <select id="p-main-category">
+                        <option value="streetwear">Marca (Streetwear)</option>
+                        <option value="corporativo">Empresa (Corporativo)</option>
+                    </select>
+                </div>
+
+                <!-- CRITICAL: p-tag element for Categories -->
+                <div class="form-group">
+                    <label class="form-label">Categoria Específica (Tag/Página)</label>
+                    <select id="p-tag">
+                        <option value="">Carregando...</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Imagens</label>
-                    <input type="file" id="p-files" accept="image/*" multiple>
+                    <label class="form-label">Descrição</label>
+                    <textarea id="p-desc" placeholder="Detalhes do produto..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ficha Técnica (Html ou Texto)</label>
+                    <textarea id="p-tech" placeholder="Especificações..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Imagens</label>
+                    <input type="file" id="p-files" multiple>
                 </div>
             </div>
             <div class="modal-footer">
@@ -264,126 +258,382 @@
 
     <script>
         let _supabase;
+        let _session = null;
 
-        function initSupabase() {
-            _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // --- FUNÇÕES DE SEGURANÇA ---
+
+        function escapeHtml(unsafe) {
+            if (unsafe === null || unsafe === undefined) return '';
+            return String(unsafe)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
-        function checkAccess() {
-            if (document.getElementById('admin-key').value === 'index2026') {
-                initSupabase();
+        function sanitize(html) {
+            return DOMPurify.sanitize(html, {
+                ALLOWED_TAGS: [],
+                KEEP_CONTENT: true
+            });
+        }
+
+        // --- INICIALIZAÇÃO E AUTH ---
+
+        function initSupabase() {
+            if (!_supabase) {
+                if (window._supabase) {
+                    _supabase = window._supabase;
+                } else if (typeof supabase !== 'undefined') {
+                    _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                        auth: {
+                            persistSession: true,
+                            autoRefreshToken: true,
+                            detectSessionInUrl: true
+                        }
+                    });
+                } else {
+                    console.error("Supabase SDK not found");
+                }
+            }
+            window._supabaseDebug = _supabase; // Expor para debug
+        }
+
+        async function checkAccess() {
+            initSupabase();
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            const btn = document.querySelector('#login-section button');
+
+            if (!email || !password) {
+                alert("Por favor, preencha email e senha.");
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerText = "Verificando...";
+
+                const { data, error } = await _supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                _session = data.session;
+
+                const csrfToken = crypto.randomUUID();
+                sessionStorage.setItem('csrf_token', csrfToken);
+
                 document.getElementById('login-section').style.display = 'none';
                 document.getElementById('admin-app').style.display = 'flex';
-                updateStats();
-                loadCategories();
-                renderProducts();
-                renderLeads();
-                loadLogos();
-            } else {
-                alert("Senha incorreta");
+
+                await loadAllData();
+
+            } catch (e) {
+                console.error("Erro de login:", e);
+                alert("Login falhou: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Entrar no Painel";
             }
         }
 
-        function switchView(view, el) {
-            ['dashboard', 'products', 'leads', 'categories', 'logos'].forEach(v => {
-                const viewEl = document.getElementById('view-' + v);
-                if (viewEl) viewEl.style.display = 'none';
+        async function handleLogout() {
+            initSupabase();
+            if (_supabase) await _supabase.auth.signOut();
+            sessionStorage.clear();
+            window.location.reload();
+        }
+
+        // --- NAVEGAÇÃO ---
+
+        function switchView(viewKey, element) {
+            const views = document.querySelectorAll('.content-scroll > div[id^="view-"]');
+            views.forEach(v => v.style.display = 'none');
+
+            const selectedView = document.getElementById(`view-${viewKey}`);
+            if (selectedView) selectedView.style.display = 'block';
+
+            if (element) {
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                element.classList.add('active');
+
+                const titleMap = {
+                    'dashboard': 'Visão Geral',
+                    'products': 'Gerenciar Produtos',
+                    'categories': 'Gerenciar Filtros',
+                    'leads': 'Contatos Recebidos',
+                    'logos': 'Logos Clientes'
+                };
+                const crumbName = document.getElementById('crumb-name');
+                if (crumbName) crumbName.innerText = titleMap[viewKey] || 'Dashboard';
+            }
+        }
+
+
+        // --- CARREGAMENTO DE DADOS ---
+
+        async function loadAllData() {
+            // Garantia de Sessão
+            if (!_session) {
+                console.warn("ALERTA: Sessão não detectada. Tentando recuperar...");
+                const { data } = await _supabase.auth.getSession();
+                if (data.session) {
+                    _session = data.session;
+                } else {
+                    console.error("Sessão inválida. Faça login novamente.");
+                    return;
+                }
+            }
+            console.log("Iniciando carregamento de dados...");
+
+            // Promise.allSettled garante que o erro de um não trave os outros
+            const results = await Promise.allSettled([
+                updateStats(),
+                loadCategories(),
+                renderProducts(),
+                renderLeads(),
+                loadLogos()
+            ]);
+
+            results.forEach((res, idx) => {
+                const names = ['Stats', 'Categorias', 'Produtos', 'Leads', 'Logos'];
+                if (res.status === 'rejected') {
+                    console.error(`ERRO em ${names[idx]}:`, res.reason);
+                } else {
+                    console.log(`${names[idx]} carregado com sucesso.`);
+                }
             });
-            document.getElementById('view-' + view).style.display = 'block';
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('crumb-name').innerText = el.innerText.trim();
+        }
+
+        // FUNÇÃO DE TESTE GLOBAL (WINDOW)
+        window.testRender = function () {
+            console.log("Executando testRender (3 linhas)...");
+            const tbody = document.getElementById('product-list');
+            if (!tbody) return alert("Erro: Tabela não encontrada.");
+
+            // Não limpa a tabela, apenas adiciona para teste
+            const mockProducts = [
+                { nome: 'Produto Teste 1', categoria: 'streetwear', slug: 'pagina-teste-1' },
+                { nome: 'Produto Teste 2', categoria: 'corporativo', slug: 'pagina-teste-2' },
+                { nome: 'Produto Teste 3', categoria: 'streetwear', slug: 'pagina-teste-3' }
+            ];
+
+            mockProducts.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${escapeHtml(p.nome)}</strong> (TESTE)</td>
+                    <td>${escapeHtml(p.slug)}</td>
+                    <td><span class="badge ${escapeHtml(p.categoria)}">${escapeHtml(p.categoria)}</span></td>
+                    <td style="text-align:right;">
+                        <button class="action-btn" onclick="alert('Funciona!')">Editar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            alert("3 produtos de teste inseridos!");
         }
 
         async function updateStats() {
-            const { count: pCount } = await _supabase.from('produtos').select('*', { count: 'exact', head: true });
-            const { count: lCount } = await _supabase.from('leads').select('*', { count: 'exact', head: true });
-            document.getElementById('stat-products').innerText = pCount || 0;
-            document.getElementById('stat-leads').innerText = lCount || 0;
+            try {
+                const { count: pCount } = await _supabase.from('produtos').select('*', { count: 'exact', head: true });
+                const pStat = document.getElementById('stat-products');
+                if (pStat) pStat.innerText = pCount || 0;
+
+                const { count: lCount } = await _supabase.from('leads').select('*', { count: 'exact', head: true });
+                const lStat = document.getElementById('stat-leads');
+                if (lStat) lStat.innerText = lCount || 0;
+            } catch (e) {
+                console.error("Erro stats:", e);
+            }
         }
 
-        // --- LÓGICA DE CATEGORIAS ---
+        // --- CATEGORIAS ---
+
         async function loadCategories() {
-            const { data: cats } = await _supabase.from('categorias').select('*').order('nome');
+            const { data: cats, error } = await _supabase.from('categorias').select('*').order('nome');
 
-            // Lista na aba de categorias
-            const catBody = document.getElementById('categories-list');
-            catBody.innerHTML = cats.map(c => `
-                <tr>
-                    <td><strong>${c.nome}</strong></td>
-                    <td>${c.tipo === 'streetwear' ? 'Marca' : 'Empresa'}</td>
-                    <td style="text-align:right;">
-                        <button class="action-btn delete" onclick="deleteCategory('${c.id}')">Excluir</button>
-                    </td>
-                </tr>
-            `).join('');
+            if (error) {
+                console.error("Erro Categorias:", error);
+                return;
+            }
 
-            // Select no modal de produto
+            const catBody = document.getElementById('cat-list');
+            if (catBody) {
+                catBody.innerHTML = '';
+                if (!cats || cats.length === 0) {
+                    catBody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;">Nenhuma categoria.</td></tr>';
+                } else {
+                    cats.forEach(c => {
+                        const nome = c.nome || '-';
+                        const tipo = c.tipo || 'streetwear';
+                        const cId = c.id;
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>${escapeHtml(nome)}</strong></td>
+                            <td>${tipo === 'streetwear' ? 'Marca (Streetwear)' : 'Empresa (Corporativo)'}</td>
+                            <td style="text-align:right;">
+                                <button class="action-btn delete">Excluir</button>
+                            </td>
+                        `;
+                        tr.querySelector('.delete').onclick = () => deleteCategory(cId);
+                        catBody.appendChild(tr);
+                    });
+                }
+            }
+
             const pTag = document.getElementById('p-tag');
-            pTag.innerHTML = '<option value="">Sem Filtro</option>' +
-                cats.map(c => `<option value="${c.slug}">${c.nome} (${c.tipo})</option>`).join('');
+            if (pTag) {
+                pTag.innerHTML = '<option value="">Sem Filtro</option>';
+                if (cats) {
+                    cats.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = escapeHtml(c.slug || c.nome);
+                        opt.textContent = `${c.nome} (${c.tipo})`;
+                        pTag.appendChild(opt);
+                    });
+                }
+            }
         }
 
         async function saveCategory() {
-            const nome = document.getElementById('new-cat-name').value;
-            const tipo = document.getElementById('new-cat-type').value;
-            if (!nome) return alert("Digite o nome");
+            if (!sessionStorage.getItem('csrf_token')) return alert("Sessão inválida.");
+
+            const nomeEl = document.getElementById('new-cat-name');
+            const tipoEl = document.getElementById('new-cat-type');
+
+            if (!nomeEl || !tipoEl) return alert("Erro interno de HTML.");
+
+            const nome = nomeEl.value;
+            const tipo = tipoEl.value;
+
+            if (!nome) return alert("Digite o nome da categoria");
 
             const slug = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
 
-            await _supabase.from('categorias').insert([{ nome, slug, tipo }]);
-            document.getElementById('new-cat-name').value = "";
-            loadCategories();
-        }
-
-        async function deleteCategory(id) {
-            if (confirm("Excluir este filtro? Produtos marcados com ele ficarão sem categoria.")) {
-                await _supabase.from('categorias').delete().eq('id', id);
+            const { error } = await _supabase.from('categorias').insert([{ nome, slug, tipo }]);
+            if (error) {
+                alert("Erro ao salvar: " + error.message);
+            } else {
+                nomeEl.value = "";
                 loadCategories();
             }
         }
 
-        // --- LÓGICA DE PRODUTOS ---
+        async function deleteCategory(id) {
+            if (!confirm("Excluir este filtro?")) return;
+            const { error } = await _supabase.from('categorias').delete().eq('id', id);
+            if (error) alert(error.message);
+            else loadCategories();
+        }
+
+        // --- PRODUTOS ---
+
         async function renderProducts() {
-            const { data } = await _supabase.from('produtos').select('*').order('created_at', { ascending: false });
+            console.log("DEBUG: Renderizando produtos...");
+            // Query normalizada
+            const { data, error } = await _supabase.from('produtos').select('*').order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Erro ao buscar produtos:", error);
+                const tbody = document.getElementById('product-list');
+                if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">Erro ao carregar: ${error.message}</td></tr>`;
+                return;
+            }
+
             const tbody = document.getElementById('product-list');
-            tbody.innerHTML = data.map(p => `
-                <tr>
-                    <td><strong>${p.nome}</strong></td>
-                    <td><span class="badge ${p.categoria}">${p.categoria}</span></td>
-                    <td>${p.tag_personalizacao || '---'}</td>
-                    <td style="text-align:right;">
-                        <button class="action-btn edit" onclick="openEditModal('${p.id}')" style="background:#3b82f6; margin-right:5px;">Editar</button>
-                        <button class="action-btn delete" onclick="deleteProduct('${p.id}')">Excluir</button>
-                    </td>
-                </tr>
-            `).join('');
+            if (tbody) {
+                tbody.innerHTML = '';
+
+                // Aviso Amigável Solicitado
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding: 20px; color: #a1a1aa;">
+                                <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                                    <span>Nenhum produto encontrado.</span>
+                                    <span style="font-size:0.9em;">(Se você tem dados, verifique se a política RLS 'Liberar Geral' foi criada)</span>
+                                </div>
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                data.forEach(p => {
+                    // Mapeamento Final: nome, slug, categoria
+                    const nome = p.nome || p.titulo || '-';
+                    const categoria = p.categoria || '-';
+                    const slug = p.slug || p.tag_personalizacao || '-'; // Prioriza Slug, usa Tag como fallback
+                    const pId = p.id;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${escapeHtml(nome)}</strong></td>
+                        <td>${escapeHtml(slug)}</td>
+                        <td><span class="badge ${escapeHtml(categoria)}">${escapeHtml(categoria)}</span></td>
+                        <td style="text-align:right;">
+                            <button class="action-btn edit" style="background:#3b82f6; margin-right:5px;">Editar</button>
+                            <button class="action-btn delete">Excluir</button>
+                        </td>
+                    `;
+                    tr.querySelector('.edit').onclick = () => openEditModal(pId);
+                    tr.querySelector('.delete').onclick = () => deleteProduct(pId);
+                    tbody.appendChild(tr);
+                });
+            }
         }
 
         async function openEditModal(id) {
-            const { data: p } = await _supabase.from('produtos').select('*').eq('id', id).single();
-            document.getElementById('modal-title').innerText = "Editar Produto";
-            document.getElementById('edit-id').value = p.id;
-            document.getElementById('p-name').value = p.nome;
-            document.getElementById('p-subtitle').value = p.subtitulo || "";
-            document.getElementById('p-desc').value = p.descricao || "";
-            document.getElementById('p-main-category').value = p.categoria;
-            document.getElementById('p-tag').value = p.tag_personalizacao || "";
-            document.getElementById('p-tech').value = p.ficha_tecnica || "";
-            document.getElementById('product-modal').style.display = 'flex';
+            try {
+                const { data: p, error } = await _supabase.from('produtos').select('*').eq('id', id).single();
+                if (error) return alert("Erro ao carregar: " + error.message);
+
+                document.getElementById('modal-title').innerText = "Editar Produto";
+                document.getElementById('edit-id').value = p.id;
+
+                if (document.getElementById('p-name')) document.getElementById('p-name').value = p.nome || "";
+                if (document.getElementById('p-subtitle')) document.getElementById('p-subtitle').value = p.subtitulo || "";
+                if (document.getElementById('p-desc')) document.getElementById('p-desc').value = p.descricao || "";
+                if (document.getElementById('p-main-category')) document.getElementById('p-main-category').value = p.categoria || "streetwear";
+
+                const pTag = document.getElementById('p-tag');
+                if (pTag) pTag.value = p.slug || p.tag_personalizacao || "";
+
+                if (document.getElementById('p-tech')) document.getElementById('p-tech').value = p.ficha_tecnica || "";
+
+                document.getElementById('product-modal').style.display = 'flex';
+            } catch (e) {
+                console.error("Erro modal edit:", e);
+            }
         }
 
         function openModal() {
-            document.getElementById('modal-title').innerText = "Novo Produto";
-            document.getElementById('edit-id').value = "";
-            document.getElementById('p-name').value = "";
-            document.getElementById('p-tag').value = "";
-            document.getElementById('product-modal').style.display = 'flex';
+            try {
+                document.getElementById('modal-title').innerText = "Novo Produto";
+                document.getElementById('edit-id').value = "";
+
+                document.querySelectorAll('#product-modal input, #product-modal textarea').forEach(el => el.value = '');
+                const sel = document.getElementById('p-main-category');
+                if (sel) sel.value = "streetwear";
+
+                document.getElementById('product-modal').style.display = 'flex';
+            } catch (e) {
+                console.error("Erro modal new:", e);
+                document.getElementById('product-modal').style.display = 'flex';
+            }
         }
 
-        function closeModal() { document.getElementById('product-modal').style.display = 'none'; }
+        function closeModal() {
+            document.getElementById('product-modal').style.display = 'none';
+        }
 
         async function handleSave() {
+            if (!sessionStorage.getItem('csrf_token')) return alert("Sessão expirada.");
+
             const id = document.getElementById('edit-id').value;
             const files = document.getElementById('p-files').files;
             const btn = document.getElementById('save-btn');
@@ -396,158 +646,204 @@
                 if (files.length > 0) {
                     for (let i = 0; i < files.length; i++) {
                         const file = files[i];
-                        const fileName = `${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
-                        await _supabase.storage.from('produtos').upload(fileName, file);
-                        const { data: urlData } = _supabase.storage.from('produtos').getPublicUrl(fileName);
+                        const safeName = `img-${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_').toLowerCase()}`;
+
+                        const { error: uploadError } = await _supabase.storage.from('produtos').upload(safeName, file);
+                        if (uploadError) throw uploadError;
+
+                        const { data: urlData } = _supabase.storage.from('produtos').getPublicUrl(safeName);
                         uploadedUrls.push(urlData.publicUrl);
                     }
                 }
 
+                // Mapeamento de salvamento também deve usar os campos corretos
+                // Se o DB espera 'tag_personalizacao', usamos ele.
                 const productData = {
-                    nome: document.getElementById('p-name').value,
-                    subtitulo: document.getElementById('p-subtitle').value,
-                    descricao: document.getElementById('p-desc').value,
+                    nome: sanitize(document.getElementById('p-name').value),
+                    subtitulo: sanitize(document.getElementById('p-subtitle').value),
+                    descricao: sanitize(document.getElementById('p-desc').value),
                     categoria: document.getElementById('p-main-category').value,
+
+                    // IMPORTANTE: Aqui salvamos o valor do campo 'p-tag' (que é o slug da categoria)
+                    // na coluna que o banco espera. Se o banco usa 'tag_personalizacao', salvamos nela.
                     tag_personalizacao: document.getElementById('p-tag').value,
-                    ficha_tecnica: document.getElementById('p-tech').value
+
+                    ficha_tecnica: sanitize(document.getElementById('p-tech').value)
                 };
 
-                if (uploadedUrls.length > 0) productData.fotos = uploadedUrls;
+                if (uploadedUrls.length > 0) {
+                    productData.fotos = uploadedUrls;
+                }
 
-                if (id) await _supabase.from('produtos').update(productData).eq('id', id);
-                else await _supabase.from('produtos').insert([productData]);
+                if (id) {
+                    await _supabase.from('produtos').update(productData).eq('id', id);
+                } else {
+                    await _supabase.from('produtos').insert([productData]);
+                }
 
                 closeModal();
                 renderProducts();
                 updateStats();
-            } catch (e) { alert("Erro: " + e.message); }
-            finally { btn.disabled = false; btn.innerText = "Salvar Dados"; }
+                alert("Produto salvo com sucesso!");
+
+            } catch (e) {
+                alert("Erro ao salvar: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Salvar Dados";
+            }
         }
 
         async function deleteProduct(id) {
-            if (confirm("Excluir produto permanentemente?")) {
-                await _supabase.from('produtos').delete().eq('id', id);
+            if (!confirm("Tem certeza que deseja excluir este produto?")) return;
+            const { error } = await _supabase.from('produtos').delete().eq('id', id);
+            if (error) alert("Erro ao excluir: " + error.message);
+            else {
                 renderProducts();
                 updateStats();
             }
         }
 
+        // --- LEADS ---
+
         async function renderLeads() {
-            const { data } = await _supabase.from('leads').select('*').order('created_at', { ascending: false });
-            document.getElementById('leads-list').innerHTML = data.map(l => `
-                <tr>
-                    <td>${l.nome_produto}</td>
-                    <td>Cliente Interes.</td>
-                    <td>${l.telefone}</td>
-                    <td>${new Date(l.created_at).toLocaleDateString()}</td>
-                </tr>
-            `).join('');
+            const { data, error } = await _supabase.from('leads').select('*').order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Erro Leads:", error);
+                return;
+            }
+
+            const tbody = document.getElementById('lead-list');
+            if (tbody) {
+                tbody.innerHTML = '';
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Nenhum lead recebido.</td></tr>';
+                    return;
+                }
+
+                data.forEach(l => {
+                    const phone = l.telefone || l.contato || '-';
+                    const interesse = l.nome_produto || l.interesse || '-';
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${new Date(l.created_at).toLocaleDateString()}</td>
+                        <td>${escapeHtml(phone)}</td>
+                        <td>${escapeHtml(interesse)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
         }
 
-        // --- LÓGICA DE LOGOS (REDESIGNED) ---
+        // --- LOGOS ---
         async function loadLogos() {
-            const { data } = await _supabase.from('site_config').select('*').eq('id', 'client_logos').maybeSingle();
+            const { data, error } = await _supabase.from('site_config').select('*').eq('id', 'client_logos').maybeSingle();
+            if (error) console.error("Erro Logos:", error);
+
             let logos = data ? data.data : { brand_logos: [], corporate_logos: [] };
 
             const grid = document.getElementById('logos-grid');
-            let html = '';
+            if (!grid) return;
+            grid.innerHTML = '';
 
-            // Helper to render card
-            const createCard = (url, idx, type, typeLabel, badgeClass) => `
-                <div class="logo-manage-card">
+            const createCard = (url, idx, typeKey, badgeLabel, badgeClass) => {
+                const div = document.createElement('div');
+                div.className = 'logo-manage-card';
+                div.innerHTML = `
                     <div class="logo-actions">
-                        <button class="btn-delete-icon" onclick="deleteLogo(${idx}, '${type}')" title="Remover Logo">
+                         <button class="btn-delete-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                             </svg>
                         </button>
                     </div>
                     <div class="logo-preview-box">
-                        <img src="${url}" alt="Preview">
+                         <img src="${url}" alt="Logo">
                     </div>
                     <div class="logo-info-footer">
-                        <span class="logo-type-badge ${badgeClass}">${typeLabel}</span>
+                        <span class="logo-type-badge ${badgeClass}">${badgeLabel}</span>
                     </div>
-                </div>
-            `;
+                `;
+                div.querySelector('.btn-delete-icon').onclick = () => deleteLogo(idx, typeKey);
+                return div;
+            };
 
-            (logos.brand_logos || []).forEach((url, idx) => {
-                html += createCard(url, idx, 'brand_logos', 'Marca', 'type-marca');
-            });
-
-            (logos.corporate_logos || []).forEach((url, idx) => {
-                html += createCard(url, idx, 'corporate_logos', 'Empresa', 'type-empresa');
-            });
-
-            grid.innerHTML = html || '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Nenhuma logo encontrada. Comece subindo uma nova logo acima.</div>';
+            (logos.brand_logos || []).forEach((url, i) => grid.appendChild(createCard(url, i, 'brand_logos', 'Marca', 'type-marca')));
+            (logos.corporate_logos || []).forEach((url, i) => grid.appendChild(createCard(url, i, 'corporate_logos', 'Empresa', 'type-empresa')));
         }
 
         async function uploadLogo() {
             const fileInput = document.getElementById('logo-file');
-            const typeSelect = document.getElementById('logo-type');
-            const type = typeSelect.value;
+            const type = document.getElementById('logo-type').value;
+            if (fileInput.files.length === 0) return alert("Selecione uma imagem.");
+
             const file = fileInput.files[0];
-
-            if (!file) return alert("Selecione um arquivo de imagem.");
-
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.disabled = true;
-            btn.innerText = "Subindo...";
+            const safeName = `logo-${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
 
             try {
-                const fileName = `logo-${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
-                const { data: uploadData, error: uploadError } = await _supabase.storage.from('produtos').upload(fileName, file);
+                const { error: upErr } = await _supabase.storage.from('produtos').upload(safeName, file);
+                if (upErr) throw upErr;
 
-                if (uploadError) throw uploadError;
+                const { data: publicUrlData } = _supabase.storage.from('produtos').getPublicUrl(safeName);
+                const url = publicUrlData.publicUrl;
 
-                const { data: urlData } = _supabase.storage.from('produtos').getPublicUrl(fileName);
-                const publicUrl = urlData.publicUrl;
+                const { data: currentData } = await _supabase.from('site_config').select('*').eq('id', 'client_logos').maybeSingle();
+                let logos = currentData ? currentData.data : { brand_logos: [], corporate_logos: [] };
 
-                // Fetch current list
-                const { data: config } = await _supabase.from('site_config').select('*').eq('id', 'client_logos').maybeSingle();
-                let logos = config ? config.data : { brand_logos: [], corporate_logos: [] };
+                const key = type === 'marca' ? 'brand_logos' : 'corporate_logos';
+                if (!logos[key]) logos[key] = [];
+                logos[key].push(url);
 
-                const targetKey = type === 'marca' ? 'brand_logos' : 'corporate_logos';
-                if (!logos[targetKey]) logos[targetKey] = [];
-                logos[targetKey].push(publicUrl);
+                await _supabase.from('site_config').upsert({ id: 'client_logos', data: logos });
 
-                // Save back
-                const { error: saveError } = await _supabase.from('site_config').upsert({ id: 'client_logos', data: logos });
-                if (saveError) throw saveError;
-
+                alert("Logo enviada!");
+                loadLogos();
                 fileInput.value = "";
-                loadLogos();
-                alert("Logo adicionada com sucesso!");
+
             } catch (e) {
-                console.error(e);
-                alert("Erro ao subir logo: " + e.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = originalText;
+                alert("Erro: " + e.message);
             }
         }
 
-        async function deleteLogo(index, listKey) {
+        async function deleteLogo(idx, key) {
             if (!confirm("Remover esta logo?")) return;
+            const { data } = await _supabase.from('site_config').select('*').eq('id', 'client_logos').single();
+            if (!data) return;
 
-            try {
-                const { data: config } = await _supabase.from('site_config').select('*').eq('id', 'client_logos').single();
-                let logos = config.data;
+            let logos = data.data;
+            logos[key].splice(idx, 1);
 
-                logos[listKey].splice(index, 1);
-
-                const { error } = await _supabase.from('site_config').upsert({ id: 'client_logos', data: logos });
-                if (error) throw error;
-
-                loadLogos();
-            } catch (e) {
-                alert("Erro ao remover logo: " + e.message);
-            }
+            await _supabase.from('site_config').upsert({ id: 'client_logos', data: logos });
+            loadLogos();
         }
 
-        document.getElementById('admin-key')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkAccess(); });
+        // --- STARTUP ---
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            initSupabase();
+
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                _session = session;
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('admin-app').style.display = 'flex';
+                loadAllData();
+            } else {
+                document.getElementById('login-section').style.display = 'flex';
+                document.getElementById('admin-app').style.display = 'none';
+            }
+
+            document.getElementById('admin-password').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkAccess();
+            });
+
+            // Expor função de teste global
+            window.testRender = testRender;
+        });
     </script>
 </body>
 
 </html>
+```
